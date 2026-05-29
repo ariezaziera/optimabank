@@ -4,7 +4,6 @@ import Navbar from "../Navbar";
 import "../index.css";
 import Barcode from "react-barcode";
 import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable"; // ✅ proper import
 import JsBarcode from "jsbarcode";
 
 export default function Cart() {
