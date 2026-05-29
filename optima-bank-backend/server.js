@@ -199,7 +199,7 @@ app.get('/auth/google/callback',
       points: user.points ?? 0   // nullish coalescing, bukan falsy check
     };
     const query = new URLSearchParams(safeUser).toString();
-    res.redirect(`http://localhost:3000/dashboard?${query}`);
+    res.redirect(`${process.env.CLIENT_URL}/dashboard?${query}`);
   }
 );
 
