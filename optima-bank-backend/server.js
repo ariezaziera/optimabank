@@ -200,6 +200,7 @@ app.get('/auth/google/callback',
     };
     const query = new URLSearchParams(safeUser).toString();
     res.redirect(`${process.env.CLIENT_URL}/dashboard?${query}`);
+    // Option 2: Just redirect to dashboard, frontend will fetch profile using session
   }
 );
 
