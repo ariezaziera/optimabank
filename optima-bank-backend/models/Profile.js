@@ -21,7 +21,7 @@ const Profile = () => {
       // ✅ fetch latest data from backend using _id
       const fetchUserProfile = async () => {
         try {
-          const res = await fetch(`http://localhost:5000/profile/${savedUser._id}`);
+          const res = await fetch(`http://:5000/profile/${savedUser._id}`);
           if (res.ok) {
             const data = await res.json();
             setUser(data);
@@ -51,7 +51,7 @@ const Profile = () => {
 
   const handleSave = async () => {
     try {
-      const res = await fetch(`http://localhost:5000/profile/update/${userId}`, {
+      const res = await fetch(`http://:5000/profile/update/${userId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),

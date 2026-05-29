@@ -13,6 +13,10 @@ export default function Cart() {
   const [redeemedVouchers, setRedeemedVouchers] = useState([]);
   const [showVoucherModal, setShowVoucherModal] = useState(false);
 
+  // ✅ Environment variables
+  const backendURL = process.env.REACT_APP_BACKEND_URL;
+  const frontendURL = process.env.REACT_APP_FRONTEND_URL;
+
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) setUser(JSON.parse(storedUser));
@@ -101,13 +105,13 @@ const exportClaimedVouchersPDF = async (claimedVouchers) => {
   const handleLogout = async () => {
     if (!window.confirm("Are you sure you want to logout?")) return;
     try {
-      const res = await fetch("http://localhost:5000/logout", {
+      const res = await fetch(`${backendURL}/logout`, {
         method: "GET",
         credentials: "include",
       });
       if (res.ok) {
         localStorage.removeItem("user");
-        window.location.href = "http://localhost:3000/";
+        window.location.href = frontendURL;
       } else console.error("Logout failed:", await res.json());
     } catch (err) {
       console.error("Logout failed:", err);
@@ -175,15 +179,12 @@ const exportClaimedVouchersPDF = async (claimedVouchers) => {
     );
 
     const totalCost = getTotalCost();
-
-    // ✅ Check points before generating voucher
     if (user.points < totalCost) {
       return alert(
         `Not enough points! You need ${totalCost}, but you only have ${user.points}.`
       );
     }
 
-    // ✅ Only generate if enough points
     const redeemedVouchersList = [];
     const vouchersForBackend = vouchersToRedeem.map((item) => {
       const serials = Array.from(
@@ -213,7 +214,7 @@ const exportClaimedVouchersPDF = async (claimedVouchers) => {
     setShowVoucherModal(true);
 
     try {
-      const resStock = await fetch("http://localhost:5000/redeem", {
+      const resStock = await fetch(`${backendURL}/redeem`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -226,7 +227,7 @@ const exportClaimedVouchersPDF = async (claimedVouchers) => {
       if (!resStock.ok)
         return alert(dataStock.message || "Error updating stock");
 
-      const resRedeemed = await fetch("http://localhost:5000/redeemed", {
+      const resRedeemed = await fetch(`${backendURL}/redeemed`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

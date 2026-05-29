@@ -12,6 +12,10 @@ const Voucher = () => {
   const [selectedVoucher, setSelectedVoucher] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
 
+  // ✅ Environment variables
+  const backendURL = process.env.REACT_APP_BACKEND_URL;
+  const frontendURL = process.env.REACT_APP_FRONTEND_URL;
+
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) setUser(JSON.parse(storedUser));
@@ -20,7 +24,7 @@ const Voucher = () => {
   useEffect(() => {
     const fetchVouchers = async () => {
       try {
-        const res = await fetch('http://localhost:5000/voucher');
+        const res = await fetch(`${backendURL}/voucher`);
         const data = await res.json();
         setVouchers(data);
 
@@ -38,7 +42,7 @@ const Voucher = () => {
       }
     };
     fetchVouchers();
-  }, [location.search]);
+  }, [location.search, backendURL]);
 
   const handleCategoryChange = (category) => {
     setSelectedCategory(category);
@@ -56,14 +60,14 @@ const Voucher = () => {
     if (!confirmLogout) return;
 
     try {
-      const res = await fetch('http://localhost:5000/logout', {
+      const res = await fetch(`${backendURL}/logout`, {
         method: 'GET',
         credentials: 'include',
       });
 
       if (res.ok) {
         localStorage.removeItem('user');
-        window.location.href = 'http://localhost:3000/';
+        window.location.href = frontendURL;
       } else {
         console.error('Logout failed:', await res.json());
       }

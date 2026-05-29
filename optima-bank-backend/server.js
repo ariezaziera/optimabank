@@ -22,7 +22,7 @@ const saltRounds = 10;
 
 // Middleware
 app.use(cors({
-  origin: 'http://localhost:3000',
+  origin: process.env.CLIENT_URL,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
 }));
@@ -138,7 +138,7 @@ app.post('/forgot-password', async (req, res) => {
       to: user.email,
       from: process.env.MAIL_USER,
       subject: 'Password Reset',
-      text: `Click this link to reset your password: http://localhost:3000/reset-password/${token}`,
+      text: `Click this link to reset your password: ${process.env.CLIENT_URL}/reset-password/${token}`,
     };
 
     await transporter.sendMail(mailOptions);

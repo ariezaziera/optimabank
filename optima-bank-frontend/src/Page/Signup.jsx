@@ -20,6 +20,10 @@ export default function Signup() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
+  // ✅ Environment variables
+  const backendURL = process.env.REACT_APP_BACKEND_URL;
+  const frontendURL = process.env.REACT_APP_FRONTEND_URL;
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -73,7 +77,7 @@ export default function Signup() {
     if (!validateInputs()) return;
 
     try {
-      const res = await fetch('http://localhost:5000/signup', {
+      const res = await fetch(`${backendURL}/signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
@@ -98,14 +102,14 @@ export default function Signup() {
     if (!confirmLogout) return;
 
     try {
-      const res = await fetch('http://localhost:5000/logout', {
+      const res = await fetch(`${backendURL}/logout`, {
         method: 'GET',
         credentials: 'include',
       });
 
       if (res.ok) {
         localStorage.removeItem('user');
-        window.location.href = 'http://localhost:3000/';
+        window.location.href = frontendURL;
       } else {
         console.error('Logout failed:', await res.json());
       }
@@ -120,9 +124,8 @@ export default function Signup() {
 
       <div 
         className="min-h-screen bg-cover bg-center flex flex-col items-center justify-center px-4"
-        style={{ backgroundImage: `url('/bg.png')` }} // <-- tukar ikut image path
+        style={{ backgroundImage: `url('/bg.png')` }}
       >
-
         <div className="bg-cyan-950/50 p-8 rounded-xl shadow-lg w-full max-w-2xl m-24">
           <h2 className="text-white text-3xl font-bold text-center mb-6">Signup</h2>
           

@@ -56,22 +56,13 @@ export default function AboutUs() {
   const handleLogout = async () => {
     if (!window.confirm("Are you sure you want to logout?")) return;
 
-    // 🔹 Auto-detect environment
-    const isLocalhost = window.location.hostname === "localhost";
-
-    // 🔹 Backend + frontend URLs
-    const backendURL = isLocalhost
-      ? "http://localhost:5000" // local backend
-      : "https://optimabank-gift1.onrender.com"; // production backend
-
-    const frontendURL = isLocalhost
-      ? "http://localhost:3000" // local frontend
-      : "https://optimabank-gift.vercel.app"; // production frontend
+    const backendURL = process.env.REACT_APP_BACKEND_URL;
+    const frontendURL = process.env.REACT_APP_FRONTEND_URL;
 
     try {
       const res = await fetch(`${backendURL}/logout`, {
         method: "GET",
-        credentials: "include", // keeps session cookies
+        credentials: "include",
       });
 
       if (res.ok) {
@@ -85,7 +76,6 @@ export default function AboutUs() {
       console.error("Logout failed:", err);
     }
   };
-
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-green-100">

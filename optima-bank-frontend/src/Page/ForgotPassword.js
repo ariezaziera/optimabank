@@ -6,7 +6,8 @@ function ForgotPassword() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const res = await fetch('http://localhost:5000/forgot-password', {
+    const backendURL = process.env.REACT_APP_BACKEND_URL;
+    const res = await fetch(`${backendURL}/forgot-password`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email }),

@@ -12,17 +12,21 @@ export default function LoginPage() {
     password: ''
   });
 
+  const [showPassword, setShowPassword] = useState(false);
+
+  // ✅ Environment variable
+  const backendURL = process.env.REACT_APP_BACKEND_URL;
+  console.log("Backend URL:", backendURL);
+
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const [showPassword, setShowPassword] = useState(false);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     try {
-      const res = await fetch('http://localhost:5000/login', {
+      const res = await fetch(`${backendURL}/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
@@ -30,7 +34,6 @@ export default function LoginPage() {
       });
 
       const data = await res.json();
-
       if (res.ok) {
         const user = data.user;
         localStorage.setItem('user', JSON.stringify(user));
@@ -62,9 +65,7 @@ export default function LoginPage() {
         </div>
 
         {/* Right Login Form */}
-        <div
-          className="w-full md:w-96 p-8 rounded-3xl shadow-lg bg-[rgba(3,49,66,0.6)]"
-        >
+        <div className="w-full md:w-96 p-8 rounded-3xl shadow-lg bg-[rgba(3,49,66,0.6)]">
           <h2 className="text-white text-3xl font-bold text-center mb-6">Login</h2>
           <form className="space-y-4" onSubmit={handleSubmit}>
             <input
@@ -104,8 +105,9 @@ export default function LoginPage() {
             </button>
           </form>
 
+          {/* ✅ Single Google login button */}
           <div className="mt-4 flex flex-col gap-3">
-            <a href="http://localhost:5000/auth/google">
+            <a href={`${backendURL}/auth/google`}>
               <button className="w-3/4 mx-auto bg-white text-black font-bold py-2 rounded-full flex items-center justify-center gap-2">
                 <FcGoogle size={20} />
                 Continue with Google

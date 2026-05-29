@@ -5,26 +5,30 @@ import Swal from "sweetalert2";
 export default function History() {
   const [redeemedVouchers, setRedeemedVouchers] = useState([]);
   const [user, setUser] = useState(null);
-  const [openIndex, setOpenIndex] = useState(null); // track which voucher's details is open
+  const [openIndex, setOpenIndex] = useState(null);
+
+  const backendURL = process.env.REACT_APP_BACKEND_URL;
+  const frontendURL = process.env.REACT_APP_FRONTEND_URL;
 
   useEffect(() => {
-    // Ambil user dari localStorage
     const savedUser = JSON.parse(localStorage.getItem('user'));
     if (savedUser) {
       setUser(savedUser);
-      fetchRedeemed(savedUser._id);
-    }
-  }, []);
 
-  const fetchRedeemed = async (userId) => {
-    try {
-      const res = await fetch(`http://localhost:5000/redeemed/${userId}`);
-      const data = await res.json();
-      setRedeemedVouchers(data || []);
-    } catch (err) {
-      console.error('Failed to fetch history:', err);
+      // ✅ Declare fetchRedeemed inside useEffect
+      const fetchRedeemed = async () => {
+        try {
+          const res = await fetch(`${backendURL}/redeemed/${savedUser._id}`);
+          const data = await res.json();
+          setRedeemedVouchers(data || []);
+        } catch (err) {
+          console.error('Failed to fetch history:', err);
+        }
+      };
+
+      fetchRedeemed();
     }
-  };
+  }, [backendURL]);
 
   const handleLogout = async () => {
     const result = await Swal.fire({
@@ -41,14 +45,14 @@ export default function History() {
     if (!result.isConfirmed) return;
 
     try {
-      const res = await fetch("http://localhost:5000/logout", {
+      const res = await fetch(`${backendURL}/logout`, {
         method: "GET",
         credentials: "include",
       });
 
       if (res.ok) {
         localStorage.removeItem("user");
-        window.location.href = "http://localhost:3000/";
+        window.location.href = frontendURL;
       } else {
         console.error("Logout failed:", await res.json());
       }
@@ -68,7 +72,6 @@ export default function History() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
             {redeemedVouchers.map((voucher, idx) => {
-              // latest redeem date (last item in serials array)
               const latestRedeem =
                 voucher.serials?.length > 0
                   ? voucher.serials[voucher.serials.length - 1].redeemedAt
@@ -102,9 +105,9 @@ export default function History() {
                       <ul className="space-y-1">
                         {voucher.serials?.map((s, sIdx) => (
                           <li key={sIdx} className="flex justify-between">
-                            <span className="font-mono">{s.code}</span>
+                            <span className="font-mono">{s.serial || s.code}</span>
                             <span className="text-gray-500">
-                              {new Date(s.redeemedAt).toLocaleString()}
+                              {s.redeemedAt ? new Date(s.redeemedAt).toLocaleString() : "—"}
                             </span>
                           </li>
                         ))}

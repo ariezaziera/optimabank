@@ -10,9 +10,12 @@ const Dashboard = () => {
   const [user, setUser] = useState(null);
   const [showPointsPopup, setShowPointsPopup] = useState(false);
   const [currentPromo, setCurrentPromo] = useState(0);
-  const [latestVouchers, setLatestVouchers] = useState([]); // ✅ new state
+  const [latestVouchers, setLatestVouchers] = useState([]);
   const navigate = useNavigate();
   const sliderRef = useRef(null);
+
+  const backendURL = process.env.REACT_APP_BACKEND_URL;
+  const frontendURL = process.env.REACT_APP_FRONTEND_URL;
 
   const closeWelcome = () => {
     if (user) {
@@ -22,13 +25,13 @@ const Dashboard = () => {
     setShowPointsPopup(false);
   };
 
-  // Load user from params or localStorage
+  // Load user from params
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const email = params.get('email');
 
     if (email) {
-      const user = {
+      const userObj = {
         _id: params.get('_id'),
         firstName: params.get('firstName'),
         lastName: params.get('lastName'),
@@ -37,12 +40,12 @@ const Dashboard = () => {
         profileImage: params.get('profileImage'),
         points: params.get('points') ? parseInt(params.get('points')) : 0
       };
-      localStorage.setItem('user', JSON.stringify(user));
-      setUser(user);
+      localStorage.setItem('user', JSON.stringify(userObj));
+      setUser(userObj);
 
-      const flagKey = `welcomeShown_${user._id || user.email}`;
+      const flagKey = `welcomeShown_${userObj._id || userObj.email}`;
       const hasShown = localStorage.getItem(flagKey);
-      if (!hasShown && user.points >= 500) {
+      if (!hasShown && userObj.points >= 500) {
         setShowPointsPopup(true);
         localStorage.setItem(flagKey, 'true');
       }
@@ -51,6 +54,7 @@ const Dashboard = () => {
     }
   }, []);
 
+  // Load user from localStorage
   useEffect(() => {
     const savedUser = JSON.parse(localStorage.getItem('user'));
     if (savedUser) {
@@ -65,39 +69,39 @@ const Dashboard = () => {
     }
   }, []);
 
-  // ✅ Fetch vouchers for promotions
+  // ✅ Fetch latest vouchers
   useEffect(() => {
     const fetchVouchers = async () => {
       try {
-        const res = await fetch("http://localhost:5000/voucher");
+        const res = await fetch(`${backendURL}/voucher`);
         const data = await res.json();
-        // take latest 3 vouchers
-        setLatestVouchers(data.slice(-3));
+        setLatestVouchers(data.slice(-3)); // ambil 3 terbaru
       } catch (err) {
         console.error("Failed to fetch vouchers:", err);
       }
     };
     fetchVouchers();
-  }, []);
+  }, [backendURL]);
 
+  // ✅ Logout handler
   const handleLogout = async () => {
     const confirmLogout = window.confirm("Are you sure you want to logout?");
     if (!confirmLogout) return;
 
     try {
-      const res = await fetch('http://localhost:5000/logout', {
-        method: 'GET',
-        credentials: 'include',
+      const res = await fetch(`${backendURL}/logout`, {
+        method: "GET",
+        credentials: "include",
       });
 
       if (res.ok) {
-        localStorage.removeItem('user');
-        window.location.href = 'http://localhost:3000/';
+        localStorage.removeItem("user");
+        window.location.href = frontendURL;
       } else {
-        console.error('Logout failed:', await res.json());
+        console.error("Logout failed:", await res.json());
       }
     } catch (err) {
-      console.error('Logout failed:', err);
+      console.error("Logout failed:", err);
     }
   };
 

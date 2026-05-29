@@ -8,10 +8,13 @@ function ResetPassword() {
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
 
+  // ✅ Environment variables
+  const backendURL = process.env.REACT_APP_BACKEND_URL;
+
   const handleReset = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch(`http://localhost:5000/reset-password/${token}`, {
+      const res = await fetch(`${backendURL}/reset-password/${token}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password }),
@@ -26,21 +29,26 @@ function ResetPassword() {
 
   return (
     <AuthLayout>
-        <h2 className="text-white text-3xl font-bold text-center mb-6">Reset Your Password</h2>
-            <form onSubmit={handleReset} className="space-y-4">
-                <input
-                    type="password"
-                    placeholder="New Password"
-                    className="w-full p-2 mb-4 border rounded"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                />
-                <button type="submit" className="w-full bg-yellow-700 text-white p-2 rounded">
-                    Reset Password
-                </button>
-                {message && <p className="mt-4 text-center">{message}</p>}
-            </form>
+      <h2 className="text-white text-3xl font-bold text-center mb-6">
+        Reset Your Password
+      </h2>
+      <form onSubmit={handleReset} className="space-y-4">
+        <input
+          type="password"
+          placeholder="New Password"
+          className="w-full p-2 mb-4 border rounded"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
+        <button
+          type="submit"
+          className="w-full bg-yellow-700 text-white p-2 rounded"
+        >
+          Reset Password
+        </button>
+        {message && <p className="mt-4 text-center">{message}</p>}
+      </form>
     </AuthLayout>
   );
 }

@@ -5,9 +5,10 @@ const User = require("./models/User");
 passport.use(
   new GoogleStrategy(
     {
-      clientID: process.env.GOOGLE_CLIENT_ID,      // ✅ make sure these are in your .env
+      clientID: process.env.GOOGLE_CLIENT_ID,      
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: "http://localhost:5000/auth/google/callback",
+      // ✅ Use environment variable for callback URL
+      callbackURL: `${process.env.SERVER_URL}/auth/google/callback`,
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
@@ -20,7 +21,7 @@ passport.use(
             email: profile.emails[0].value,
             provider: "google",
             profileImage: profile.photos[0].value,
-            points: 500
+            points: 500,
           });
         } else {
           // kalau user lama takde points field, set sekarang

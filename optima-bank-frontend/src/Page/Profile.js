@@ -25,6 +25,10 @@ const Profile = () => {
   const [userId, setUserId] = useState("");
   const [imagePreview, setImagePreview] = useState(null);
 
+  // ✅ Environment variables
+  const backendURL = process.env.REACT_APP_BACKEND_URL;
+  const frontendURL = process.env.REACT_APP_FRONTEND_URL;
+
   useEffect(() => {
     const savedUser = JSON.parse(localStorage.getItem("user"));
     if (!savedUser) return;
@@ -32,7 +36,7 @@ const Profile = () => {
 
     const fetchProfile = async () => {
       try {
-        const res = await fetch(`http://localhost:5000/profile/${savedUser._id}`);
+        const res = await fetch(`${backendURL}/profile/${savedUser._id}`);
         const data = await res.json();
 
         if (data) {
@@ -51,21 +55,21 @@ const Profile = () => {
     };
 
     fetchProfile();
-  }, []);
+  }, [backendURL]);
 
   const handleLogout = async () => {
     const confirmLogout = window.confirm("Are you sure you want to logout?");
     if (!confirmLogout) return;
 
     try {
-      const res = await fetch("http://localhost:5000/logout", {
+      const res = await fetch(`${backendURL}/logout`, {
         method: "GET",
         credentials: "include",
       });
 
       if (res.ok) {
         localStorage.removeItem("user");
-        window.location.href = "http://localhost:3000/";
+        window.location.href = frontendURL;
       }
     } catch (err) {
       console.error("Logout failed:", err);
@@ -88,8 +92,9 @@ const Profile = () => {
       if (formData.birthYear && formData.birthMonth && formData.birthDay) {
         updatedData.dob = new Date(
           `${formData.birthYear}-${formData.birthMonth}-${formData.birthDay}`
-        );
+        ).toISOString();
       }
+
       const form = new FormData();
       for (const key in updatedData) {
         if (key !== "profileImage") {
@@ -101,16 +106,17 @@ const Profile = () => {
         form.append("profileImage", formData.profileImage);
       }
 
-      const res = await fetch(
-        `http://localhost:5000/profile/update/${userId}`,
-        {
-          method: "PUT",
-          body: form,
-        }
-      );
+      const res = await fetch(`${backendURL}/profile/update/${userId}`, {
+        method: "PUT",
+        body: form,
+      });
 
-      if (res.ok) alert("Profile updated!");
-      else alert("Update failed");
+      if (res.ok) {
+        alert("Profile updated!");
+      } else {
+        const errData = await res.json();
+        alert(errData.message || "Update failed");
+      }
     } catch (err) {
       console.error("Save error:", err);
     }
@@ -142,16 +148,16 @@ const Profile = () => {
 
         {/* Profile Card */}
         <div className="bg-cyan-950/50 backdrop-blur-lg rounded-3xl shadow-xl p-5 sm:p-24 text-white">
-          {/* Header */}
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 sm:gap-8 mb-8">
-            {/* Profile Image */}
             <div className="relative">
               <img
                 src={
                   imagePreview ||
-                  (formData.profileImage?.startsWith("/uploads")
-                    ? `http://localhost:5000${formData.profileImage}`
-                    : formData.profileImage) || "/default-profile.png"
+                  (formData.profileImage
+                    ? formData.profileImage.startsWith("/uploads")
+                      ? `${backendURL}${formData.profileImage}`
+                      : formData.profileImage
+                    : "/default-profile.png")
                 }
                 alt="User"
                 className="w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover border-4 border-cyan-600 shadow-lg"
@@ -167,7 +173,6 @@ const Profile = () => {
               </label>
             </div>
 
-            {/* User Info */}
             <div className="text-center sm:text-left">
               <p className="text-sm sm:text-lg font-semibold">User ID: {userId}</p>
               {user && (
